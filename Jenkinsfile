@@ -23,13 +23,16 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Run tests and app') {
             steps {
                 script {
-                    // Запустити Docker-образ з тестами
-                    def app = docker.image(DOCKER_IMAGE)
-                    app.inside {
-                        sh 'Run-test' // Замість 'your-test-command' використовуйте команду для запуску тестів
+                    def statusCode = sh(script: 'docker run --rm ${DOCKER_TAG} test', returnStatus: true)
+                    println(statusCode)
+                    if (statusCode == 0) {
+                        sh 'docker run -d -p 80:80 ${DOCKER_TAG}'
+                    } 
+                    else {
+                        error("Tests failed")
                     }
                 }
             }
