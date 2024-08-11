@@ -1,13 +1,13 @@
 pipeline {
     agent any
     environment { 
-        DOCKER_TAG = 'uqlutzavr/steproject-2'
+        DOCKER_TAG = 'Nitykkk/step2'
     }
 
     stages {
         stage('Pull the code') {
             steps {
-                git branch: 'main', credentialsId: 'gitlab-tkoen', url: 'https://gitlab.com/uqlut99/step-project-2.git'
+                git branch: 'main', credentialsId: 'token_for_git', url: 'https://github.com/Nitykkk/my-node-app.git'
                 sh 'pwd'
                 sh 'whoami'
             }
