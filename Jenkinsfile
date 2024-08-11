@@ -1,22 +1,28 @@
 pipeline {
     agent any
-    environment { 
-        DOCKER_TAG = 'Nitykkk/step2'
+
+    environment {
+        DOCKER_CREDENTIALS_ID = '3603ff0f-9a52-4286-a5f3-6ce837debd8d'
+        DOCKER_IMAGE = 'nitykk/My-image'
     }
 
     stages {
-        stage('Pull the code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', credentialsId: 'token_for_git', url: 'https://github.com/Nitykkk/my-node-app.git'
-                sh 'pwd'
-                sh 'whoami'
+                // Витягнути код з репозиторію
+                git 'https://github.com/Nitykkk/my-node-app.git'
             }
         }
-        stage('Build Dockerimage') {
+
+        stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${DOCKER_TAG} .'
+                script {
+                    // Побудувати Docker-образ
+                    docker.build(DOCKER_IMAGE)
+                }
             }
         }
+
         stage('Run tests and app') {
             steps {
                 script {
@@ -31,23 +37,30 @@ pipeline {
                 }
             }
         }
-        stage('Push to dockerhub') {
+
+        stage('Push to Docker Hub') {
             when {
-                expression { currentBuild.currentResult == 'SUCCESS' }
+                expression {
+                    // Перевірити, чи тести успішні
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
             }
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-token') {
-                        docker.image(DOCKER_TAG).push()
+                    // Увійти до облікового запису Docker Hub та відправити зібраний образ
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        def app = docker.image(DOCKER_IMAGE)
+                        app.push("latest")
                     }
                 }
             }
         }
     }
-    
+
     post {
         failure {
-            echo 'Build or tests failed'
+            // Якщо тести не пройшли, вивести повідомлення
+            echo 'Tests failed'
         }
     }
 }
