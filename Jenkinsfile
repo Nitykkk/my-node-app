@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment { 
-        DOCKER_TAG = 'uqlutzavr/steproject-2'
+        DOCKER_TAG = 'Nitykkk/steproject-2'
     }
 
     stages {
