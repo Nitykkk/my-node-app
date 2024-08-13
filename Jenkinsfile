@@ -7,6 +7,7 @@ pipeline {
     stages {
         stage('Pull the code') {
             steps {
+                echo "JENKINS_HOME: ${env.JENKINS_HOME}"
                 git branch: 'main', credentialsId: 'token_for_git', url: 'https://github.com/Nitykkk/my-node-app.git'
                 sh 'pwd'
                 sh 'whoami'
